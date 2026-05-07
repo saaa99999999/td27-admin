@@ -86,5 +86,23 @@ func validateConfig(cfg *configs.Server) error {
 		return fmt.Errorf("system port must be greater than 0")
 	}
 
+	// 验证 Observability 配置
+	if cfg.Observability.Prometheus.Enabled {
+		if cfg.Observability.Prometheus.MetricsPath == "" {
+			return fmt.Errorf("prometheus metrics path is required when prometheus is enabled")
+		}
+	}
+	if cfg.Observability.Otel.Enabled {
+		if cfg.Observability.Otel.Endpoint == "" {
+			return fmt.Errorf("otel endpoint is required when tracing is enabled")
+		}
+		if cfg.Observability.Otel.ServiceName == "" {
+			return fmt.Errorf("otel service name is required when tracing is enabled")
+		}
+		if cfg.Observability.Otel.SamplingRate < 0.0 || cfg.Observability.Otel.SamplingRate > 1.0 {
+			return fmt.Errorf("otel sampling rate must be between 0.0 and 1.0")
+		}
+	}
+
 	return nil
 }

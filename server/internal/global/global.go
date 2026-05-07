@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/spf13/viper"
+	"go.opentelemetry.io/otel/sdk/trace"
 	"golang.org/x/sync/singleflight"
 	"gorm.io/gorm"
 
@@ -17,4 +18,5 @@ var (
 	TD27_DB                  *gorm.DB
 	TD27_Concurrency_Control = &singleflight.Group{}
 	TD27_CRON                interface{}
+	TD27_TP                  *trace.TracerProvider
 )

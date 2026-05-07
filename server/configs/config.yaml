@@ -76,3 +76,14 @@ cors:
       allow-methods: GET, POST
       expose-headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type
       allow-credentials: true # 布尔值
+
+# observability configuration
+observability:
+  prometheus:
+    enabled: true
+    metrics-path: /metrics
+  otel:
+    enabled: true
+    endpoint: localhost:4317
+    service-name: td27-admin
+    sampling-rate: 1.0

@@ -43,6 +43,14 @@ func RunServer(addr string, handler http.Handler) {
 	// Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	// Shutdown OpenTelemetry tracer provider if enabled
+	if global.TD27_TP != nil {
+		if err := global.TD27_TP.Shutdown(ctx); err != nil {
+			global.TD27_LOG.Error("Failed to shutdown tracer provider", "error", err)
+		}
+	}
+
 	if err := srv.Shutdown(ctx); err != nil {
 		global.TD27_LOG.Error("server forced to shutdown", "err", err)
 	}

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 
+	"go.opentelemetry.io/otel/trace"
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"server/internal/global"
@@ -146,6 +147,17 @@ func (m *multiHandler) Enabled(ctx context.Context, level slog.Level) bool {
 }
 
 func (m *multiHandler) Handle(ctx context.Context, r slog.Record) error {
+	// Inject trace ID and span ID if present in context
+	if span := trace.SpanFromContext(ctx); span.SpanContext().IsValid() {
+		sc := span.SpanContext()
+		r2 := r.Clone()
+		r2.AddAttrs(
+			slog.String("trace_id", sc.TraceID().String()),
+			slog.String("span_id", sc.SpanID().String()),
+		)
+		r = r2
+	}
+
 	// Clone once and inject static attrs before dispatching to children
 	if len(m.attrs) > 0 {
 		r2 := r.Clone()

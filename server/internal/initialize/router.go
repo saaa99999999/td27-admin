@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -17,7 +18,16 @@ func Routers() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
+	
+	// OpenTelemetry tracing middleware (must be first to capture full request lifecycle)
+	r.Use(middleware.OTelMiddleware())
+	
 	r.Use(log.GinLogger(global.TD27_LOG), log.GinRecovery(global.TD27_LOG, global.TD27_CONFIG.System.Stack))
+
+	// Prometheus metrics middleware
+	if global.TD27_CONFIG.Observability.Prometheus.Enabled {
+		r.Use(middleware.PrometheusMiddleware())
+	}
 
 	// 跨域，如需跨域可以打开下面的注释
 	// global.TD27_LOG.Info("use middleware cors")
@@ -26,6 +36,11 @@ func Routers() *gin.Engine {
 
 	// Swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Prometheus metrics endpoint
+	if global.TD27_CONFIG.Observability.Prometheus.Enabled {
+		r.GET(global.TD27_CONFIG.Observability.Prometheus.MetricsPath, gin.WrapH(promhttp.Handler()))
+	}
 
 	// Public group
 	publicGroup := r.Group(global.TD27_CONFIG.System.RouterPrefix)

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"server/internal/core"
 	"server/internal/global"
@@ -16,6 +18,23 @@ func main() {
 
 	// Setup logger
 	global.TD27_LOG = core.Logger()
+
+	// Initialize OpenTelemetry tracer provider (if enabled)
+	tp, err := initialize.InitTracerProvider()
+	if err != nil {
+		global.TD27_LOG.Error("Failed to initialize tracer provider", "error", err)
+		// Continue execution even if tracing fails
+	}
+	if tp != nil {
+		defer func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if err := tp.Shutdown(ctx); err != nil {
+				global.TD27_LOG.Error("Failed to shutdown tracer provider", "error", err)
+			}
+		}()
+		global.TD27_TP = tp
+	}
 
 	// Initialize Database
 	global.TD27_DB = initialize.Gorm()
