@@ -1,6 +1,10 @@
 package sysManagement
 
-import "server/internal/model/common"
+import (
+	"strconv"
+
+	"server/internal/model/common"
+)
 
 //id | parent | path | level
 //--------------------------------
@@ -22,9 +26,9 @@ type DeptModel struct {
 // GetFullPath 获取完整路径（包含自己）
 func (d *DeptModel) GetFullPath() string {
 	if d.Path == "" {
-		return "/" + string(rune(d.ID))
+		return "/" + strconv.FormatUint(uint64(d.ID), 10)
 	}
-	return d.Path + string(rune(d.ID)) + "/"
+	return d.Path + strconv.FormatUint(uint64(d.ID), 10) + "/"
 }
 
 // IsAncestorOf 检查当前部门是否是目标部门的祖先

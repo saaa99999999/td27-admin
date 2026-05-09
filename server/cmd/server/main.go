@@ -46,7 +46,7 @@ func main() {
 	defer db.Close()
 
 	// Auto migrate tables AFTER DB is initialized
-	if global.TD27_CONFIG.System.DisableAutoMigrate {
+	if !global.TD27_CONFIG.System.DisableAutoMigrate {
 		if err := initialize.RegisterTables(global.TD27_DB); err != nil {
 			global.TD27_LOG.Error("auto migrate failed", "error", err)
 			os.Exit(1)

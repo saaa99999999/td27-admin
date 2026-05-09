@@ -147,12 +147,16 @@ func (a *LogRegApi) LogOut(c *gin.Context) {
 	claims, err := j.ParseToken(token)
 	if err != nil {
 		global.TD27_LOG.Error("登出解析token失败", "error", err)
+		common.OkWithMessage("登出失败", c)
+		return
 	} else {
 		jwtService := serviceSysManagement.NewJwtService()
 		err = jwtService.RemoveToken(claims.Username, token)
 		if err != nil {
 			global.TD27_LOG.Error("登出删除token失败", "error", err)
+			common.OkWithMessage("登出失败", c)
+			return
 		}
 	}
-	common.OkWithMessage("登出失败", c)
+	common.OkWithMessage("登出成功", c)
 }

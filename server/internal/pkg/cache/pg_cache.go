@@ -60,7 +60,7 @@ func (c *PGCache) Set(ctx context.Context, username string, key string, value st
 	result := db.WithContext(ctx).Exec(`
 		UPDATE sys_tool_cache 
 		SET "username" = ?, "value" = ?, expires_at = ?, updated_at = ?
-		WHERE "key" = ? and "deleted_at" = null
+		WHERE "key" = ? and "deleted_at" IS NULL
 	`, username, value, expiresAt, time.Now(), key)
 
 	// 如果没有记录被更新，则插入

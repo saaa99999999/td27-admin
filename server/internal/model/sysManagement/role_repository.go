@@ -116,7 +116,7 @@ func (e *roleRepo) UpdateRolePermission(ctx context.Context, roleId uint, menuId
 	// Get permission IDs for the menu IDs (menu ID = permission ID)
 	var permissions []PermissionModel
 	if err := e.conn.WithContext(ctx).
-		Where("id IN ? AND type = 'menu'", menuIds).
+		Where("id IN ? AND domain = 'menu'", menuIds).
 		Find(&permissions).Error; err != nil {
 		return fmt.Errorf("find menu permissions failed: %w", err)
 	}
